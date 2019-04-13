@@ -23,6 +23,7 @@ public enum MapState
 	LANDVALUE_OVERLAY,  //LVMAP
 	CRIME_OVERLAY,      //CRMAP
 	POLLUTE_OVERLAY,    //PLMAP
+	WATER_OVERLAY, 		//waterplant overlay
 	TRAFFIC_OVERLAY,    //TDMAP
 	POWER_OVERLAY,      //PRMAP
 	FIRE_OVERLAY,       //FIMAP

@@ -84,6 +84,8 @@ public class Micropolis
 
 	int [][] fireStMap;      //firestations- cleared and rebuilt each sim cycle
 	public int [][] fireRate;       //firestations reach- used for overlay graphs
+	int [][] waterPlantMap;
+	public int [][] waterPlantMapEffect;
 	int [][] policeMap;      //police stations- cleared and rebuilt each sim cycle
 	public int [][] policeMapEffect;//police stations reach- used for overlay graphs
 
@@ -120,6 +122,7 @@ public class Micropolis
 	int churchCount;
 	int policeCount;
 	int fireStationCount;
+	int waterPlantCount;
 	int stadiumCount;
 	int coalCount;
 	int nuclearCount;
@@ -134,6 +137,7 @@ public class Micropolis
 	int lastRailTotal;
 	int lastTotalPop;
 	int lastFireStationCount;
+	int lastWaterPlantCount;
 	int lastPoliceCount;
 
 	int trafficMaxLocationX;
@@ -172,11 +176,13 @@ public class Micropolis
 	public double roadPercent = 1.0;
 	public double policePercent = 1.0;
 	public double firePercent = 1.0;
+	public double waterPlantPercent = 1.0;
 
 	int taxEffect = 7;
 	int roadEffect = 32;
 	int policeEffect = 1000;
 	int fireEffect = 1000;
+	int waterPlantEffect = 500;
 
 	int cashFlow; //net change in totalFunds in previous year
 
@@ -242,6 +248,8 @@ public class Micropolis
 
 		rateOGMem = new int[smY][smX];
 		fireStMap = new int[smY][smX];
+		waterPlantMap = new int[smY][smX];
+		waterPlantMapEffect = new int[smY][smX];
 		policeMap = new int[smY][smX];
 		policeMapEffect = new int[smY][smX];
 		fireRate = new int[smY][smX];
@@ -533,6 +541,7 @@ public class Micropolis
 		churchCount = 0;
 		policeCount = 0;
 		fireStationCount = 0;
+		waterPlantCount = 0;
 		stadiumCount = 0;
 		coalCount = 0;
 		nuclearCount = 0;
@@ -544,6 +553,7 @@ public class Micropolis
 			for (int x = 0; x < fireStMap[y].length; x++) {
 				fireStMap[y][x] = 0;
 				policeMap[y][x] = 0;
+				waterPlantMap[y][x] = 0;
 			}
 		}
 	}
@@ -1136,6 +1146,16 @@ public class Micropolis
 	//power, terrain, land value
 	void ptlScan()
 	{
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		for (int sy = 0; sy < waterPlantMap.length; sy++) {
+			for (int sx = 0; sx < waterPlantMap[sy].length; sx++) {
+				waterPlantMapEffect[sy][sx] = waterPlantMap[sy][sx];
+			}
+		}
+
+		
 		final int qX = (getWidth()+3)/4;
 		final int qY = (getHeight()+3)/4;
 		int [][] qtem = new int[qY][qX];
@@ -1218,11 +1238,16 @@ public class Micropolis
 		int pcount = 0;
 		int ptotal = 0;
 		int pmax = 0;
+		
 		for (int x = 0; x < HWLDX; x++)
 		{
 			for (int y = 0; y < HWLDY; y++)
 			{
 				int z = tem[y][x];
+				//if building exists do logic (check firestation, firestation blurs 
+				//things into adjacent squares, count funding level, check whether 
+				//they have power, etc)
+				z = z - waterPlantMap[y/4][x/4]; //??looks like tem is a 1/2 scale map? making it 1/8 like firestation
 				pollutionMem[y][x] = z;
 
 				if (z != 0)
@@ -1244,7 +1269,8 @@ public class Micropolis
 		pollutionAverage = pcount != 0 ? (ptotal / pcount) : 0;
 
 		terrainMem = smoothTerrain(qtem);
-
+		
+		fireMapOverlayDataChanged(MapState.WATER_OVERLAY);
 		fireMapOverlayDataChanged(MapState.POLLUTE_OVERLAY);   //PLMAP
 		fireMapOverlayDataChanged(MapState.LANDVALUE_OVERLAY); //LVMAP
 	}

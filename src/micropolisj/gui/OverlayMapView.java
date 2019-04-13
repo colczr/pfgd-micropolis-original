@@ -159,6 +159,17 @@ public class OverlayMapView extends JComponent
 			}
 		}
 	}
+	
+	private void drawWaterPlantMap(Graphics gr)
+	{
+		int [][] A = engine.waterPlantMapEffect;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(gr, getCI(A[y][x]),x*24,y*24,24,24);
+			}
+		}
+	}
 
 	private void drawCrimeMap(Graphics gr)
 	{
@@ -386,6 +397,8 @@ public class OverlayMapView extends JComponent
 			drawCrimeMap(gr); break;
 		case POLLUTE_OVERLAY:
 			drawPollutionMap(gr); break;
+		case WATER_OVERLAY:
+			drawWaterPlantMap(gr); break;
 		case GROWTHRATE_OVERLAY:
 			drawRateOfGrowth(gr); break;
 		case POPDEN_OVERLAY:
