@@ -182,7 +182,7 @@ public class Micropolis
 	int roadEffect = 32;
 	int policeEffect = 1000;
 	int fireEffect = 1000;
-	int waterPlantEffect = 500;
+	int waterPlantEffect = 1000;
 
 	int cashFlow; //net change in totalFunds in previous year
 
@@ -646,6 +646,7 @@ public class Micropolis
 
 		case 12:
 			ptlScan();
+			doWaterPlant();
 			break;
 
 		case 13:
@@ -963,6 +964,20 @@ public class Micropolis
 
 		fireMapOverlayDataChanged(MapState.FIRE_OVERLAY);
 	}
+	
+	void doWaterPlant()
+	{
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
+		for (int sy = 0; sy < waterPlantMap.length; sy++) {
+			for (int sx = 0; sx < waterPlantMap[sy].length; sx++) {
+				waterPlantMapEffect[sy][sx] = waterPlantMap[sy][sx];
+			}
+		}
+		fireMapOverlayDataChanged(MapState.WATER_OVERLAY);
+
+	}
 
 	private boolean testForCond(CityLocation loc, int dir)
 	{
@@ -1146,15 +1161,6 @@ public class Micropolis
 	//power, terrain, land value
 	void ptlScan()
 	{
-		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
-		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
-		waterPlantMap = smoothFirePoliceMap(waterPlantMap);
-		for (int sy = 0; sy < waterPlantMap.length; sy++) {
-			for (int sx = 0; sx < waterPlantMap[sy].length; sx++) {
-				waterPlantMapEffect[sy][sx] = waterPlantMap[sy][sx];
-			}
-		}
-
 		
 		final int qX = (getWidth()+3)/4;
 		final int qY = (getHeight()+3)/4;
@@ -1269,8 +1275,6 @@ public class Micropolis
 		pollutionAverage = pcount != 0 ? (ptotal / pcount) : 0;
 
 		terrainMem = smoothTerrain(qtem);
-		
-		fireMapOverlayDataChanged(MapState.WATER_OVERLAY);
 		fireMapOverlayDataChanged(MapState.POLLUTE_OVERLAY);   //PLMAP
 		fireMapOverlayDataChanged(MapState.LANDVALUE_OVERLAY); //LVMAP
 	}
